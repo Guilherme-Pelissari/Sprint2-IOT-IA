@@ -140,7 +140,7 @@ cd Sprint2-IOT-IA
 ## 2. Instale as dependências
 
 ```bash
-pip install opencv-python pyzbar requests
+pip install opencv-python opencv-contrib-python pyzbar requests
 ```
 
 > ⚠️ **Windows:** pode ser necessário instalar o ZBar manualmente:
