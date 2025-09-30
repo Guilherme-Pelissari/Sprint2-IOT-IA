@@ -251,7 +251,7 @@ O script `gerador_qrcode.py`:
 
 ```bash
 git clone https://github.com/Guilherme-Pelissari/Sprint2-IOT-IA.git
-cd Sprint-IOT-IA/qrcode_gerador
+cd Sprint2-IOT-IA/gerador_qrcode
 ```
 ---
 ## 2. Instale as dependências
