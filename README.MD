@@ -175,7 +175,7 @@ python leitor_qrcode.py
 
 - A câmera será ativada e começará a escanear QR Codes.
 - Ao encontrar um QR Code com **JSON válido**, o conteúdo será enviado via **POST** para o backend.
-- Há um intervalo de **3 segundos** entre cada leitura.
+- Há um intervalo de **5 segundos** entre cada leitura.
 - Pressione `q` para encerrar o programa.
 
 ---
