@@ -166,7 +166,7 @@ pip install opencv-python pyzbar requests
 ## ▶️ Como executar
 
 ```bash
-python QRreadercam.py
+python leitor_qrcode.py
 ```
 
 ---
