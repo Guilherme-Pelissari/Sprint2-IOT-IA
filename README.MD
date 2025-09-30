@@ -133,8 +133,8 @@ Caso queira testar a integração com o backend basta rodar os dois codigos na m
 ### 1. Clone o repositório ou salve o script:
 
 ```bash
-git clone https://github.com/Guilherme-Pelissari/Sprint-IOT-IA.git
-cd Sprint-IOT-IA/leitor_qrcode
+git clone https://github.com/Guilherme-Pelissari/Sprint2-IOT-IA.git
+cd Sprint2-IOT-IA/leitor_qrcode
 ``` 
 
 ## 2. Instale as dependências
@@ -250,7 +250,7 @@ O script `gerador_qrcode.py`:
 ### 1. Clone o repositório (se ainda não fez isso)
 
 ```bash
-git clone https://github.com/Guilherme-Pelissari/Sprint-IOT-IA.git
+git clone https://github.com/Guilherme-Pelissari/Sprint2-IOT-IA.git
 cd Sprint-IOT-IA/qrcode_gerador
 ```
 ---
