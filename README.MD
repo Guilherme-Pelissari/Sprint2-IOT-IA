@@ -237,7 +237,7 @@ O script `gerador_qrcode.py`:
 
 - Gera um objeto JSON com os dados de movimentação (ID, moto, ponto, data/hora) compatível com o backend no seguinte formato:
   {"idMoto":
-   "MOTO001",
+   "MOTO-001",
     "idPonto": 1,
      "dataHora": "2025-05-07T10:00:00"}
 - Codifica esse JSON em um QR Code.
@@ -251,7 +251,7 @@ O script `gerador_qrcode.py`:
 
 ```bash
 git clone https://github.com/Guilherme-Pelissari/Sprint2-IOT-IA.git
-cd Sprint2-IOT-IA/gerador_qrcode
+cd Sprint2-IOT-IA
 ```
 ---
 ## 2. Instale as dependências
