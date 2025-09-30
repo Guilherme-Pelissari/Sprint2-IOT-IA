@@ -134,7 +134,7 @@ Caso queira testar a integração com o backend basta rodar os dois codigos na m
 
 ```bash
 git clone https://github.com/Guilherme-Pelissari/Sprint-IOT-IA.git
-cd Sprint-IOT-IA/qrcode_reader_cam
+cd Sprint-IOT-IA/leitor_qrcode
 ``` 
 
 ## 2. Instale as dependências
