@@ -69,15 +69,17 @@ Essa abordagem **minimiza custos de infraestrutura** e **maximiza a acessibilida
 
 #### Script Python para Leitura de QR Codes
 
-- **Bibliotecas Utilizadas**: `cv2` (OpenCV), `pyzbar`, `requests`, `time`.
+- **Bibliotecas Utilizadas**: `FastAPI`, `Uvicorn`, `cv2` (OpenCV), `pyzbar`, `requests`, `qrcode`, `Pillow`, `numpy`, `threading`.
 
 ##### Aplicação:
 
+- **Servidor API**: Roda como um servidor `Uvicorn` que centraliza todas as operações de CV.
 - **Captura de Vídeo**: `cv2.VideoCapture(1)` via DroidCam ou USB.
 - **Decodificação**: `pyzbar.decode` identifica QR Codes com `ZBarSymbol.QRCODE`.
+- **Geração de QR Code (`/gerar_qrcode`)**: Recebe dados (via POST) do frontend web e retorna uma imagem de QR Code.
 - **Processamento**: Tenta ler o conteúdo como JSON e envia via `requests.post` ao backend.
-- **Visualização**: Retângulos verdes e texto sobrepostos aos QR Codes com `cv2.rectangle` e `cv2.putText`.
 - **Controle de Tempo**: `time.time()` com `read_interval` (3s) evita leituras redundantes.
+- **Leitura via Upload (`/upload_image_and_decode`)**: Permite que o frontend envie uma imagem estática (via POST) para decodificação.
 
 - **Benefício**: Rastreia em tempo real com baixa latência usando hardware já disponível.
 
@@ -94,7 +96,7 @@ Essa abordagem **minimiza custos de infraestrutura** e **maximiza a acessibilida
 
 ### Como Funciona
 
-1. **Escaneamento**: O operador usa o app React Native para capturar imagens via câmera.
+1. **Escaneamento**: O operador usa o app para capturar imagens via câmera.
 2. **Decodificação**: O script Python processa o frame e extrai os dados do QR Code.
 3. **Envio ao Backend**: Os dados (em JSON) são enviados ao backend em Spring Boot via POST.
 4. **Visualização**: O frontend exibe as informações em tempo real com alertas.
@@ -112,7 +114,7 @@ Essa abordagem **minimiza custos de infraestrutura** e **maximiza a acessibilida
 
 # 📷 Passo a Passo do Leitor de QR Code 
 
-Este script utiliza a webcam (incluindo a do celular via DroidCam) para detectar QR Codes em tempo real, interpretar os dados como JSON e enviá-los para uma API REST em um backend Java.
+Este projeto utiliza um servidor **FastAPI** para centralizar todas as funcionalidades de Visão Computacional. Uma API que serve endpoints para gerar QR Codes e ler QR Codes (seja via camera ou por upload de arquivos). para detectar QR Codes em tempo real, interpretar os dados como JSON e enviá-los para uma API REST em um backend Java.
 Caso queira testar a integração com o backend basta rodar os dois codigos na mesma maquina local que os dados serao enviados via endpoint para o backend quando o qrcode for lido
 
 ---
@@ -121,7 +123,7 @@ Caso queira testar a integração com o backend basta rodar os dois codigos na m
 
 - Python 3.7 ou superior
 - Pip (gerenciador de pacotes do Python)
-- Link Para o repositório Backend em java: `https://github.com/LuigiBerzaghi/Sprint1Java.git`
+- Link Para o repositório da aplicação em java: `https://github.com/Guilherme-Pelissari/Sprint-Java.git`
 - Backend Java rodando em `http://localhost:8080/api/movimentacoes`
 - (Opcional) DroidCam instalado e funcionando se for usar a câmera do celular, mas para testar o funcionamento do código apenas a webcam ja é suficiente
 
@@ -140,7 +142,7 @@ cd Sprint2-IOT-IA
 ## 2. Instale as dependências
 
 ```bash
-pip install opencv-python opencv-contrib-python pyzbar requests
+pip install -r requirements.txt
 ```
 
 > ⚠️ **Windows:** pode ser necessário instalar o ZBar manualmente:
@@ -165,18 +167,54 @@ pip install opencv-python opencv-contrib-python pyzbar requests
 
 ## ▶️ Como executar
 
-```bash
-python leitor_qrcode.py
-```
+Este projeto é um servidor FastAPI. Para executá-lo, você usa o `uvicorn`.
 
+```bash
+uvicorn leitor_qrcode:app --host 0.0.0.0 --port 8000
+```
+-O servidor estará rodando em http://localhost:8000.
 ---
 
 ## 🧪 Funcionamento
 
-- A câmera será ativada e começará a escanear QR Codes.
-- Ao encontrar um QR Code com **JSON válido**, o conteúdo será enviado via **POST** para o backend.
-- Há um intervalo de **5 segundos** entre cada leitura.
-- Pressione `q` para encerrar o programa.
+O servidor agora expõe vários endpoints que são consumidos pelo seu frontend :
+
+* **`POST /gerar_qrcode`**
+    * Recebe os dados da movimentação (via formulário) do frontend.
+    * Gera um QR Code e retorna a imagem `.png` diretamente.
+
+* **`GET /start`**
+    * Inicia a leitura da webcam em uma *thread* separada.
+    * Uma janela do OpenCV (`cv2.imshow`) será aberta para visualização.
+    * Ao encontrar um QR Code com JSON válido, o conteúdo será enviado via **POST** para o `BACKEND_URL` (seu backend Java).
+
+* **`GET /stop`**
+    * Para o loop de leitura da webcam.
+
+* **`GET /status`**
+    * Verifica se o loop de leitura está ativo.
+
+* **`POST /upload_image_and_decode`**
+    * Permite que o frontend envie um arquivo de imagem (upload).
+    * O servidor decodifica a imagem, extrai o JSON e o envia ao backend Java.
+
+* Pressione `q` na janela do OpenCV (quando ativa) para forçar o encerramento do leitor.
+
+---
+
+## 🏁 Passo Final: Executar o Backend Java
+
+Agora que o seu servidor Python (FastAPI) está rodando (ex: na porta `8000`), você precisa iniciar o backend Java (Spring Boot) para que o sistema fique completo.
+
+A API Python está configurada para enviar os dados lidos do QR Code para o backend Java (ex: em `http://localhost:8080`).
+
+1.  Abra um **novo terminal** (deixe o terminal do Python rodando!).
+2.  Clone e execute a aplicação Spring Boot que está no repositório abaixo, seguindo as instruções dele.
+
+**Repositório do Backend Java:**
+[https://github.com/Guilherme-Pelissari/Sprint-Java.git](https://github.com/Guilherme-Pelissari/Sprint-Java.git)
+
+> **Nota:** Quando ambos os servidores (Python e Java) estiverem rodando ao mesmo tempo, a comunicação entre o frontend, a API de visão e o backend funcionará.
 
 ---
 
@@ -187,7 +225,7 @@ Este guia mostra como configurar a câmera do seu celular como webcam no computa
 ---
 
 ### 🔧 Passo a passo para configurar o DroidCam com USB
-
+de
 #### 1. Instale o app no celular
 
 - Acesse a Play Store (Android) ou App Store (iOS) e instale o app **DroidCam**:
@@ -227,44 +265,8 @@ No seu código Python, altere este trecho se necessário:
 ```python
 cap = cv2.VideoCapture(1)
 ```
-## Gerador de QR Code(OPCIONAL)
-
-Este script gera um QR Code contendo dados de movimentações de motocicletas em formato JSON.
-
-## 📄 Descrição
-
-O script `gerador_qrcode.py`:
-
-- Gera um objeto JSON com os dados de movimentação (ID, moto, ponto, data/hora) compatível com o backend no seguinte formato:
-  {"idMoto":
-   "MOTO-001",
-    "idPonto": 1,
-     "dataHora": "2025-05-07T10:00:00"}
-- Codifica esse JSON em um QR Code.
-- Salva o QR Code em formato de imagem (`qrcode.png`).
-
 ---
 
-## 🚀 Como Executar
-
-### 1. Clone o repositório (se ainda não fez isso)
-
-```bash
-git clone https://github.com/Guilherme-Pelissari/Sprint2-IOT-IA.git
-cd Sprint2-IOT-IA
-```
----
-## 2. Instale as dependências
-
-```bash
-pip install qrcode[pil]
-```
----
-## ▶️ Como executar
-
-```bash
-python gerador_qrcode.py
-```
 ## Integrantes
 
 - RM555516 - Luigi Berzaghi Hernandes Sespedes
