@@ -26,7 +26,6 @@ app.add_middleware(
 # altere se necessário (endpoint do seu backend Java)
 BACKEND_URL = "http://localhost:8080/api/movimentacoes"
 
-# ... (código do gerar_qrcode da Fase 1 se mantém) ...
 @app.post("/gerar_qrcode")
 async def gerar_qrcode(
     idMoto: str = Form(...),
@@ -49,11 +48,7 @@ async def gerar_qrcode(
     return StreamingResponse(buf, media_type="image/png")
 
 
-# =======================================================
-#               MUDANÇAS NA LEITURA
-# =======================================================
-
-# 1. FUNÇÃO DE ENVIO MODIFICADA
+# 1. FUNÇÃO DE ENVIO 
 def send_post_request(qr_data: dict, id_ponto: int):
     """
     Combina os dados do QR com o idPonto e a data/hora,
@@ -80,7 +75,7 @@ def send_post_request(qr_data: dict, id_ponto: int):
         if resp.status_code == 201: # 201 Created (sucesso no Java)
             return True, final_payload
         else:
-            return False, final_payload # Falha, mas retorna o que tentou enviar
+            return False, final_payload # retorna o que tentou enviar
 
     except Exception as e:
         print("Erro ao enviar POST para backend:", e)
@@ -91,7 +86,7 @@ def send_post_request(qr_data: dict, id_ponto: int):
 @app.post("/upload_image_and_decode")
 async def upload_image_and_decode(
     file: UploadFile = File(...),
-    idPonto: int = Form(...)  # <-- RECEBE O idPonto DO FORMULÁRIO
+    idPonto: int = Form(...)  
 ):
     
     if not idPonto:
@@ -127,15 +122,12 @@ async def upload_image_and_decode(
         }
         
     except json.JSONDecodeError:
-        # Se o QR não tiver JSON (talvez só um texto simples)
+        # Se o QR não tiver JSON
         return {"found": True, "data_type": "text", "data": data, "sent_to_backend": False}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno no processamento: {e}")
 
 
-# 3. LÓGICA /start DEPRECADA (NÃO FUNCIONA COM A NOVA REGRA)
-# Recomendo remover ou desabilitar esta parte, pois ela não sabe
-# qual 'idPonto' o usuário selecionou no navegador.
 
 is_running = False
 thread = None
@@ -148,15 +140,7 @@ def read_qrcode_loop():
     print("Use a captura de imagem pelo navegador (Upload / Abrir Câmera).")
     
     cap = cv2.VideoCapture(0)
-    # ... (o resto da função existe, mas vai falhar no send_post_request) ...
-    # ... (pois send_post_request agora exige 'id_ponto') ...
-    
-    # Exemplo de como falharia:
-    # qr_codes = decode(frame, ...)
-    # for qr in qr_codes:
-    #   json_data = json.loads(qr.data.decode("utf-8"))
-    #   send_post_request(json_data, ???) # <-- PROBLEMA: Qual idPonto?
-    
+   
     cap.release()
     cv2.destroyAllWindows()
     print("Leitor (loop) finalizado")
